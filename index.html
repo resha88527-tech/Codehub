@@ -142,7 +142,7 @@
         اختر المسار. ابدأ التشغيل. <span class="text-emerald-400">وتقدّم للأمام.</span>
       </h2>
       <p class="text-gray-400 text-sm mt-2">
-        نظام إدارة الجلسات والطوابير الذكية مع متابعة التقدم المباشر لحظة بلحظة.
+        متصل مباشرة بخادم التنفيذ الفعلي (Backend Worker) مع بث مباشر للتقدم.
       </p>
     </div>
 
@@ -153,7 +153,7 @@
           <div class="flex items-center justify-between mb-6">
             <div>
               <h3 class="text-lg font-bold text-white">ابدأ جلسة جديدة</h3>
-              <p class="text-xs text-gray-400">أربع خطوات سريعة، والباقي علينا.</p>
+              <p class="text-xs text-gray-400">أربع خطوات سريعة، والباقي على السيرفر.</p>
             </div>
             <span id="step-badge" class="w-9 h-9 rounded-xl bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 flex items-center justify-center font-bold text-sm">
               01
@@ -197,7 +197,7 @@
             <label class="block text-sm font-semibold text-gray-300">3. معرف الجلسة أو الكود التعريفي:</label>
             <input id="demo-id" type="text" placeholder="أدخل المعرف الخاص بالجلسة..." class="w-full p-3.5 rounded-xl bg-[#0d0f15] border border-gray-700 text-white text-sm focus:outline-none focus:border-indigo-500" />
             <p class="text-xs text-gray-400">
-              يُستخدم هذا المعرف لربط التقدم المباشر بجلستك الحالية فقط.
+              يُرسل هذا المعرف إلى السيرفر لربط التقدم المباشر بجلستك.
             </p>
           </div>
 
@@ -208,8 +208,8 @@
               <div class="flex justify-between"><span class="text-gray-400">الكورس:</span> <span id="summary-course" class="font-bold text-white">-</span></div>
               <div class="flex justify-between"><span class="text-gray-400">المعرف:</span> <span id="summary-id" class="font-bold text-indigo-400">-</span></div>
             </div>
-            <button onclick="startSimulation()" id="start-btn" class="w-full py-3.5 rounded-xl btn-primary font-bold text-white shadow-lg transition cursor-pointer">
-              ابدأ التشغيل الآن ←
+            <button onclick="startRealTask()" id="start-btn" class="w-full py-3.5 rounded-xl btn-primary font-bold text-white shadow-lg transition cursor-pointer">
+              إرسال للسيرفر وبدء التشغيل ←
             </button>
           </div>
         </div>
@@ -233,8 +233,8 @@
         <div>
           <div class="flex items-center justify-between mb-6">
             <div>
-              <h3 class="text-lg font-bold text-white">التقدم المباشر</h3>
-              <p class="text-xs text-gray-400">تحديثات من جلستك الحالية بس.</p>
+              <h3 class="text-lg font-bold text-white">التقدم المباشر (Realtime)</h3>
+              <p class="text-xs text-gray-400">بث حي من سيرفر التنفيذ الخلفي.</p>
             </div>
             <span id="status-pill" class="px-3 py-1 rounded-full text-xs font-semibold bg-gray-800 text-gray-400">
               • متوقف
@@ -248,7 +248,7 @@
             </div>
             <div class="bg-[#191c27] border border-gray-800/80 rounded-xl p-4 text-center">
               <div id="stat-last" class="text-lg font-bold text-indigo-400 truncate">—</div>
-              <div class="text-xs text-gray-400 mt-1">آخر فصل</div>
+              <div class="text-xs text-gray-400 mt-1">آخر وحدة</div>
             </div>
             <div class="bg-[#191c27] border border-gray-800/80 rounded-xl p-4 text-center">
               <div id="stat-state" class="text-lg font-bold text-gray-300">متوقف</div>
@@ -270,19 +270,19 @@
             <div class="flex justify-between items-center mb-2">
               <span class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
                 <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                النشاط المباشر
+                سجل السيرفر المباشر
               </span>
               <span id="log-count" class="text-xs text-gray-500">0 أحداث</span>
             </div>
             <div id="logs-container" class="bg-[#0d0f15] border border-gray-800 rounded-xl p-4 h-44 overflow-y-auto space-y-2 text-xs font-mono text-gray-300">
-              <div class="text-gray-500 text-center py-12">نشاط جلستك هيظهر هنا...</div>
+              <div class="text-gray-500 text-center py-12">في انتظار إرسال المهمة للسيرفر...</div>
             </div>
           </div>
         </div>
 
         <div class="mt-4 pt-3 border-t border-gray-800/60 flex justify-between items-center text-xs text-gray-500">
-          <span>• جلسة نشطة واحدة لكل جهاز</span>
-          <button onclick="resetSimulation()" class="text-red-400 hover:underline cursor-pointer">إعادة ضبط الجلسة</button>
+          <span>• مربوط بـ Supabase Realtime</span>
+          <button onclick="resetUI()" class="text-red-400 hover:underline cursor-pointer">جلسة جديدة</button>
         </div>
       </div>
     </div>
@@ -302,6 +302,8 @@
     
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const ADMIN_CODE = 'ENGEYAD';
+    let currentAccessCode = 'ADMIN';
+    let activeTaskSubscription = null;
 
     async function generateSingleUseCode() {
       const btn = document.getElementById('gen-code-btn');
@@ -393,6 +395,7 @@
       }
 
       if (input === ADMIN_CODE) {
+        currentAccessCode = 'ADMIN';
         errorBox.classList.add('hidden');
         document.getElementById('access-gate').classList.add('hidden');
         document.getElementById('admin-btn').classList.remove('hidden');
@@ -431,6 +434,7 @@
         .update({ used: true })
         .eq('id', data.id);
 
+      currentAccessCode = input;
       submitBtn.disabled = false;
       submitBtn.innerText = 'دخول المنصة ←';
       errorBox.classList.add('hidden');
@@ -449,7 +453,7 @@
     }
 
     function logoutGate() {
-      resetSimulation();
+      resetUI();
       document.getElementById('gate-code-input').value = '';
       document.getElementById('admin-btn').classList.add('hidden');
       document.getElementById('admin-modal').classList.add('hidden');
@@ -457,14 +461,12 @@
     }
 
     // ========================================================
-    // 2. منطق الواجهة الأساسية والتقدم المباشر
+    // 2. منطق إرسال المهام للسيرفر واستقبال البث الحي
     // ========================================================
     let currentStep = 1;
     let selectedTrack = '';
     let selectedCourse = '';
     let totalUnits = 42;
-    let simInterval = null;
-    let logs = [];
 
     function updateStepUI() {
       document.querySelectorAll('.step-panel').forEach(el => el.classList.add('hidden'));
@@ -510,65 +512,115 @@
       }
     }
 
-    function addLog(msg, type = 'info') {
-      const time = new Date().toLocaleTimeString('ar-EG');
-      logs.unshift({ time, msg, type });
-      const container = document.getElementById('logs-container');
-      document.getElementById('log-count').innerText = `${logs.length} أحداث`;
-      
-      container.innerHTML = logs.map(item => `
-        <div class="flex justify-between items-center border-b border-gray-800/50 pb-1.5">
-          <span class="${item.type === 'success' ? 'text-emerald-400' : 'text-gray-300'}">${item.msg}</span>
-          <span class="text-gray-500 text-[10px]">${item.time}</span>
-        </div>
-      `).join('');
-    }
-
-    function startSimulation() {
-      if (simInterval) clearInterval(simInterval);
-      
-      let completed = 0;
-      logs = [];
-      
+    function renderDashboardFromTask(task) {
       const statusPill = document.getElementById('status-pill');
-      statusPill.className = 'px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
-      statusPill.innerText = '• نشط الآن';
-      
-      document.getElementById('stat-state').innerText = 'نشط';
-      document.getElementById('stat-state').className = 'text-lg font-bold text-emerald-400';
-      document.getElementById('start-btn').disabled = true;
-      document.getElementById('start-btn').innerText = 'جاري التشغيل...';
+      const statState = document.getElementById('stat-state');
+      const startBtn = document.getElementById('start-btn');
 
-      addLog(`بدأت الجلسة لمسار (${selectedTrack} - ${selectedCourse})`);
+      if (task.status === 'pending') {
+        statusPill.className = 'px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20';
+        statusPill.innerText = '⏳ في الطابور';
+        statState.innerText = 'في الانتظار';
+        statState.className = 'text-lg font-bold text-amber-400';
+      } else if (task.status === 'running') {
+        statusPill.className = 'px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
+        statusPill.innerText = '• السيرفر يعمل الآن';
+        statState.innerText = 'نشط';
+        statState.className = 'text-lg font-bold text-emerald-400';
+      } else if (task.status === 'completed') {
+        statusPill.className = 'px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20';
+        statusPill.innerText = '✓ مكتمل';
+        statState.innerText = 'مكتمل';
+        statState.className = 'text-lg font-bold text-indigo-400';
+        startBtn.disabled = false;
+        startBtn.innerText = 'إرسال مهمة جديدة ←';
+      }
 
-      simInterval = setInterval(() => {
-        completed++;
-        const percent = Math.round((completed / totalUnits) * 100);
+      const percent = Math.round((task.completed_units / task.total_units) * 100);
+      document.getElementById('stat-completed').innerText = `${task.completed_units}`;
+      document.getElementById('stat-last').innerText = task.last_unit || '—';
+      document.getElementById('progress-bar').style.width = `${percent}%`;
+      document.getElementById('progress-percent').innerText = `${percent}%`;
 
-        document.getElementById('stat-completed').innerText = `${completed}`;
-        document.getElementById('stat-last').innerText = `فصل ${completed}`;
-        document.getElementById('progress-bar').style.width = `${percent}%`;
-        document.getElementById('progress-percent').innerText = `${percent}%`;
+      const logsList = Array.isArray(task.logs) ? task.logs : [];
+      document.getElementById('log-count').innerText = `${logsList.length} أحداث`;
+      const container = document.getElementById('logs-container');
 
-        addLog(`تم إكمال الفصل رقم ${completed} من ${totalUnits}`, 'success');
-
-        if (completed >= totalUnits) {
-          clearInterval(simInterval);
-          statusPill.className = 'px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20';
-          statusPill.innerText = '✓ مكتمل';
-          document.getElementById('stat-state').innerText = 'مكتمل';
-          document.getElementById('stat-state').className = 'text-lg font-bold text-indigo-400';
-          document.getElementById('start-btn').disabled = false;
-          document.getElementById('start-btn').innerText = 'إعادة التشغيل ←';
-          addLog('تم إنهاء جميع الفصول بنجاح!');
-        }
-      }, 600);
+      if (logsList.length === 0) {
+        container.innerHTML = '<div class="text-gray-500 text-center py-12">تم وضع المهمة في الطابور، في انتظار استجابة السيرفر...</div>';
+      } else {
+        container.innerHTML = logsList.map(item => `
+          <div class="flex justify-between items-center border-b border-gray-800/50 pb-1.5">
+            <span class="${item.type === 'success' ? 'text-emerald-400' : 'text-gray-300'}">${item.msg}</span>
+            <span class="text-gray-500 text-[10px]">${item.time}</span>
+          </div>
+        `).join('');
+      }
     }
 
-    function resetSimulation() {
-      if (simInterval) clearInterval(simInterval);
+    async function startRealTask() {
+      const startBtn = document.getElementById('start-btn');
+      const sessionId = document.getElementById('demo-id').value.trim() || 'SESSION-01';
+
+      startBtn.disabled = true;
+      startBtn.innerText = 'جاري الإرسال للسيرفر...';
+
+      // إزالة أي اشتراك سابق
+      if (activeTaskSubscription) {
+        supabaseClient.removeChannel(activeTaskSubscription);
+      }
+
+      // إدراج المهمة في جدول الطوابير في Supabase
+      const { data, error } = await supabaseClient
+        .from('tasks_queue')
+        .insert([{
+          access_code: currentAccessCode,
+          track: selectedTrack,
+          course: selectedCourse,
+          session_identifier: sessionId,
+          status: 'pending',
+          completed_units: 0,
+          total_units: totalUnits,
+          logs: [{
+            msg: 'تم إرسال الطلب إلى قاعدة البيانات، في انتظار السيرفر (Worker)...',
+            time: new Date().toLocaleTimeString('ar-EG'),
+            type: 'info'
+          }]
+        }])
+        .select()
+        .single();
+
+      if (error || !data) {
+        alert('حدث خطأ أثناء إرسال المهمة: ' + (error ? error.message : 'غير معروف'));
+        startBtn.disabled = false;
+        startBtn.innerText = 'إرسال للسيرفر وبدء التشغيل ←';
+        return;
+      }
+
+      startBtn.innerText = 'السيرفر يعالج المهمة...';
+      renderDashboardFromTask(data);
+
+      // الاستماع اللحظي لتحديثات السيرفر على هذه المهمة تحديداً
+      activeTaskSubscription = supabaseClient
+        .channel(`task-progress-${data.id}`)
+        .on('postgres_changes', {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'tasks_queue',
+          filter: `id=eq.${data.id}`
+        }, (payload) => {
+          if (payload.new) {
+            renderDashboardFromTask(payload.new);
+          }
+        })
+        .subscribe();
+    }
+
+    function resetUI() {
+      if (activeTaskSubscription) {
+        supabaseClient.removeChannel(activeTaskSubscription);
+      }
       currentStep = 1;
-      logs = [];
       updateStepUI();
       document.getElementById('stat-completed').innerText = '0';
       document.getElementById('stat-last').innerText = '—';
@@ -577,12 +629,12 @@
       document.getElementById('progress-bar').style.width = '0%';
       document.getElementById('progress-percent').innerText = '0%';
       document.getElementById('log-count').innerText = '0 أحداث';
-      document.getElementById('logs-container').innerHTML = '<div class="text-gray-500 text-center py-12">نشاط جلستك هيظهر هنا...</div>';
+      document.getElementById('logs-container').innerHTML = '<div class="text-gray-500 text-center py-12">في انتظار إرسال المهمة للسيرفر...</div>';
       const statusPill = document.getElementById('status-pill');
       statusPill.className = 'px-3 py-1 rounded-full text-xs font-semibold bg-gray-800 text-gray-400';
       statusPill.innerText = '• متوقف';
       document.getElementById('start-btn').disabled = false;
-      document.getElementById('start-btn').innerText = 'ابدأ التشغيل الآن ←';
+      document.getElementById('start-btn').innerText = 'إرسال للسيرفر وبدء التشغيل ←';
     }
   </script>
 </body>
