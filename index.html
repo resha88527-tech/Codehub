@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>منصة إدارة المهام والطوابير - نظام الأكواد السحابي</title>
+  <title>Code Hub | Eng.Eyad - منصة إدارة المهام والطوابير</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -34,13 +34,16 @@
   <!-- Access Gate Modal -->
   <div id="access-gate" class="fixed inset-0 z-50 glass-overlay flex items-center justify-center p-4">
     <div class="card-bg max-w-md w-full rounded-2xl p-7 shadow-2xl border border-indigo-500/20">
-      <div class="w-12 h-12 rounded-xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 flex items-center justify-center font-black text-xl mx-auto mb-4">
-        🔐
+      <div class="w-14 h-14 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 flex items-center justify-center font-black text-2xl mx-auto mb-3">
+        CH
       </div>
-      <h2 class="text-xl font-extrabold text-white text-center">بوابة الانضمام للمنصة</h2>
-      <p class="text-xs text-gray-400 text-center mt-1.5 mb-6">
-        أدخل كود الانضمام ذو الاستخدام الواحد للوصول إلى لوحة التحكم
-      </p>
+      <div class="text-center mb-5">
+        <h2 class="text-2xl font-black text-white tracking-wide">Code Hub</h2>
+        <span class="text-xs font-bold text-indigo-400">By Eng.Eyad</span>
+        <p class="text-xs text-gray-400 mt-2">
+          أدخل كود الانضمام ذو الاستخدام الواحد للوصول إلى المنصة
+        </p>
+      </div>
 
       <div class="space-y-4">
         <div>
@@ -61,7 +64,7 @@
       <div class="flex justify-between items-center pb-4 border-b border-gray-800">
         <div class="flex items-center gap-2.5">
           <span class="px-2.5 py-1 rounded-md bg-amber-500/20 text-amber-400 text-xs font-bold">ADMIN</span>
-          <h3 class="text-lg font-extrabold text-white">لوحة إدارة أكواد الانضمام (سحابي)</h3>
+          <h3 class="text-lg font-extrabold text-white">لوحة إدارة أكواد Code Hub</h3>
         </div>
         <button onclick="closeAdminPanel()" class="text-gray-400 hover:text-white text-sm px-3 py-1 rounded-lg bg-gray-800 cursor-pointer">إغلاق ✕</button>
       </div>
@@ -110,10 +113,13 @@
   <!-- Header -->
   <header class="border-b border-gray-800/80 py-4 px-6 flex justify-between items-center bg-[#0d0f15]">
     <div class="flex items-center gap-3">
-      <div class="w-9 h-9 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white text-lg">Q</div>
+      <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center font-black text-white text-base">CH</div>
       <div>
-        <h1 class="font-bold text-white text-base">منصة إدارة المهام والطوابير</h1>
-        <p class="text-xs text-gray-400">الواجهة الأساسية للتشغيل والتتبع المباشر</p>
+        <div class="flex items-center gap-2">
+          <h1 class="font-extrabold text-white text-lg tracking-wide">Code Hub</h1>
+          <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-indigo-500/15 text-indigo-400 border border-indigo-500/20">Eng.Eyad</span>
+        </div>
+        <p class="text-xs text-gray-400">منصة إدارة المهام والطوابير الذكية</p>
       </div>
     </div>
     <div class="flex items-center gap-3">
@@ -131,7 +137,7 @@
   <!-- Main Content -->
   <main class="max-w-6xl w-full mx-auto px-4 py-8 flex-1">
     <div class="mb-8">
-      <span class="text-xs text-indigo-400 font-semibold">منصة واحدة. كل المسارات.</span>
+      <span class="text-xs text-indigo-400 font-semibold">Code Hub • Eng.Eyad</span>
       <h2 class="text-2xl md:text-3xl font-extrabold text-white mt-1">
         اختر المسار. ابدأ التشغيل. <span class="text-emerald-400">وتقدّم للأمام.</span>
       </h2>
@@ -283,12 +289,13 @@
   </main>
 
   <footer class="text-center py-5 text-xs text-gray-500 border-t border-gray-800/60 bg-[#0d0f15]">
-    <div class="font-semibold text-gray-400 tracking-wide">Powerd By Gemini</div>
+    <div class="font-bold text-gray-300 tracking-wide">Code Hub • Eng.Eyad</div>
+    <div class="text-[11px] text-gray-500 mt-1">Powerd By Gemini</div>
   </footer>
 
   <script>
     // ========================================================
-    // 1. إعدادات الربط مع Supabase (مُفعّلة وجاهزة)
+    // 1. إعدادات الربط مع Supabase
     // ========================================================
     const SUPABASE_URL = 'https://jrjdkojqmpgssaxiwiem.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_cIQbKQbFKqYKTWd3sJuu6A_XRMkQmby';
@@ -389,7 +396,7 @@
         errorBox.classList.add('hidden');
         document.getElementById('access-gate').classList.add('hidden');
         document.getElementById('admin-btn').classList.remove('hidden');
-        document.getElementById('session-badge').innerText = 'وضع الأدمن (ENGEYAD)';
+        document.getElementById('session-badge').innerText = 'Eng.Eyad (Admin)';
         openAdminPanel();
         return;
       }
@@ -406,7 +413,7 @@
       if (error || !data) {
         submitBtn.disabled = false;
         submitBtn.innerText = 'دخول المنصة ←';
-        errorBox.innerText = 'الكود غير صحيح. تواصل مع الأدمن للحصول على كود.';
+        errorBox.innerText = 'الكود غير صحيح. تواصل مع Eng.Eyad للحصول على كود.';
         errorBox.classList.remove('hidden');
         return;
       }
