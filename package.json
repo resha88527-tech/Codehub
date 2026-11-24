@@ -1,0 +1,9 @@
+{
+  "name": "codehub-qureo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node --check api/qureo.js && node --check api/session.js && node --check api/solver.js && node --check api/session/login.js && node --check api/session/logout.js && node --check api/course/progress.js && node --check api/course/process.js"
+  }
+}

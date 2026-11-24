@@ -1,0 +1,15 @@
+{
+  "name": "codehub-worker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "worker.js",
+  "scripts": {
+    "test": "node --check worker.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.57.4"
+  }
+}
