@@ -152,7 +152,10 @@ export async function loginToQureo(studentId, password, fetchImpl = fetch) {
   }
 
   if (!response.ok) {
-    throw new QureoError('بيانات الدخول غير صحيحة.', response.status, 'invalid_credentials');
+    if (response.status === 400 || response.status === 401) {
+      throw new QureoError('بيانات الدخول غير صحيحة.', response.status, 'invalid_credentials');
+    }
+    throw new QureoError('تعذر إكمال تسجيل الدخول عبر Qureo.', response.status, 'request_failed');
   }
 
   const cookies = getSetCookies(response, PORTAL_ORIGIN);

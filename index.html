@@ -694,8 +694,16 @@
             showGateError('رفضت Qureo بيانات الدخول. تأكد من نسخ Login ID الصحيح وكلمة المرور كما هي، أو جرّب الدخول من موقع Qureo أولًا.', 'gate-student-id');
           } else if (loginResponse.status === 400) {
             showGateError('تحقق من الحقول: Login ID يجب ألا يتجاوز 128 حرفًا، وكلمة المرور 256 حرفًا.', 'gate-student-id');
-          } else if (loginResponse.status === 504) {
-            showGateError('استغرقت منصة Qureo وقتًا أطول من المعتاد. تحقق من الإنترنت ثم أعد المحاولة.');
+          } else if (loginResponse.status === 504 || loginData.error === 'qureo_timeout') {
+            showGateError('استغرقت منصة Qureo وقتًا أطول من المعتاد. انتظر قليلًا ثم أعد المحاولة.');
+          } else if (loginData.error === 'network') {
+            showGateError('خادم Code Hub لم يستطع الوصول إلى Qureo. جرّب إعادة النشر على Vercel ثم أعد المحاولة.');
+          } else if (loginData.error === 'missing_session') {
+            showGateError('أكدت Qureo الحساب لكنها لم تُنشئ جلسة صالحة. جرّب تسجيل الخروج والدخول من موقع Qureo ثم أعد المحاولة.');
+          } else if (loginData.error === 'request_failed') {
+            showGateError('منصة Qureo رفضت طلب الاتصال مؤقتًا. انتظر قليلًا ثم أعد المحاولة.');
+          } else if (loginData.error === 'session_too_large') {
+            showGateError('جلسة Qureo أكبر من حد الكوكي المدعوم. سجّل الخروج من موقع Qureo ثم حاول مجددًا.');
           } else {
             showGateError('تعذر الاتصال بخدمة Code Hub الآن. أعد المحاولة بعد قليل، وتأكد من أن الموقع منشور على Vercel.');
           }

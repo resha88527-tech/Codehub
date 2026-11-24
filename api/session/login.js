@@ -44,8 +44,13 @@ export default async function handler(request, response) {
       progress
     }, cookie);
   } catch (error) {
-    const invalidCredentials = error?.code === 'invalid_credentials' || error?.status === 401 || error?.status === 400;
+    const invalidCredentials = error?.code === 'invalid_credentials' || error?.status === 401;
     const status = invalidCredentials ? 401 : error?.status === 504 ? 504 : 502;
-    return json(response, status, { error: status === 401 ? 'invalid_credentials' : 'qureo_unavailable' }, buildClearedSessionCookie(request));
+    const errorCode = status === 401
+      ? 'invalid_credentials'
+      : status === 504
+        ? 'qureo_timeout'
+        : error?.code || 'qureo_unavailable';
+    return json(response, status, { error: errorCode }, buildClearedSessionCookie(request));
   }
 }
